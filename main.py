@@ -14,11 +14,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import os
+
 import webapp2
+from google.appengine.ext.webapp import template
+
+from webvision import get_emoji
+
+TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), 'templates')
+
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        self.response.write('Hello world!')
+        context = {}
+        file = os.path.join(TEMPLATE_PATH, 'index.html')
+        self.response.write(template.render(file, context))
+
+    def post(self):
+        img = self.request.POST.get('photo')
+        url = self.request.POST.get('photo-url')
+
+        context = {'result': '/static/'+get_emoji(url),
+                   'img': url,
+                   }
+        file = os.path.join(TEMPLATE_PATH, 'index.html')
+
+        self.response.write(template.render(file, context))
+
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler)

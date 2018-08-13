@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find your feeling!</title>
+    <script src="https://www.gstatic.com/firebasejs/5.3.1/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyA5OmJG1z81e9_C6e-dGRJ7xvH8i46kSYA",
+            authDomain: "saturno-entrega.firebaseapp.com",
+            databaseURL: "https://saturno-entrega.firebaseio.com",
+            projectId: "saturno-entrega",
+            storageBucket: "saturno-entrega.appspot.com",
+            messagingSenderId: "786026202762"
+        };
+        firebase.initializeApp(config);
+
+    </script>
+
+</head>
+<body>
+<form method="post" id="form-photo" action="/" onsubmit="event.preventDefault(); uploadimage();">
+    <input type="file" id="file-id" name="photo" class="btn btn-success" accept="image/png, image/jpeg"
+           enctype="multipart/form-data"/>
+    <input type="hidden" name="photo-url" id="photo-url-id">
+    <input type="submit">
+    <br><br>
+    <img id="photo-id" src="{{img|safe}}" width="400px" height="400px"/>
+
+    <br><br>
+    <img src="{{result|safe}}" width="50px" height="50px" id="emoji"/>
+</form>
+<script>
+    document.getElementById("file-id").onchange = function () {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            // get loaded data and render thumbnail.
+            document.getElementById("photo-id").src = e.target.result;
+            document.getElementById("emoji").src = "";
+        };
+
+        // read the image file as a data URL.
+        reader.readAsDataURL(this.files[0]);
+    };
+</script>
+
+<script>
+    var storage = firebase.storage();
+    function uploadimage() {
+        var storage = firebase.storage();
+        var file = document.getElementById("file-id").files[0];
+        var storageRef = storage.ref();
+        var thisref = storageRef.child(file.name);
+        thisref.put(file).then(function(snapshot) {
+            console.log('Uploaded an array!');
+            console.log("file uplaoded succesfully");
+            snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                console.log('File available at', downloadURL);
+                document.getElementById("photo-url-id").value = downloadURL;
+                var form = document.getElementById("form-photo");
+                form.submit();
+            });
+        });
+    }
+
+    function sleep(milliseconds) {
+        var start = new Date().getTime();
+        for (var i = 0; i < 1e7; i++) {
+            if ((new Date().getTime() - start) > milliseconds){
+                break;
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
